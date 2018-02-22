@@ -3,22 +3,30 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
+	"time"
 
-	pb "github.com/ajalab/echo"
+	pb "github.com/ajalab/grpc_loadbalancing_test/echo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 )
 
 var (
-	address = flag.String("addr", "echoserver:4000", "$host:$port to bind for rpc")
+	dns  = flag.String("dns", "kubernetes.default", "dns server")
+	host = flag.String("host", "echoserver", "host name")
+	port = flag.String("port", "4000", "port number")
 )
 
 func main() {
 	flag.Parse()
-	conn, err := grpc.Dial(*address,
+
+	conn, err := grpc.Dial(
+		fmt.Sprintf("dns://%s/%s:%s", *dns, *host, *port),
 		grpc.WithInsecure(),
-		grpc.WithBalancerName(roundrobin.Name))
+		grpc.WithBalancerName(roundrobin.Name),
+	)
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -31,5 +39,6 @@ func main() {
 			log.Printf("could not echo: %v", err)
 		}
 		log.Printf("Message '%s' from %s", r.Message, r.GetFrom())
+		time.Sleep(1 * time.Second)
 	}
 }

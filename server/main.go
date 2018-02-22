@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/ajalab/echo"
+	pb "github.com/ajalab/grpc_loadbalancing_test/echo"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
